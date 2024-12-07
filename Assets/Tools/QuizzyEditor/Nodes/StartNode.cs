@@ -21,6 +21,7 @@ namespace QuizGraphEditor
             // Load data
             GUID = data.GUID;
             SetPosition(new Rect(data.Position, Vector2.zero));
+            ApplyColorPreferences();
         }
 
         private void InitializeNode()
@@ -37,8 +38,13 @@ namespace QuizGraphEditor
 
             RefreshExpandedState();
             RefreshPorts();
+            ApplyColorPreferences();
         }
-
+        public void ApplyColorPreferences()
+        {
+            style.backgroundColor = UserPreferences.StartNodeColor;
+            titleContainer.style.color = UserPreferences.StartNodeTextColor;
+        }
         public StartNodeData GetData()
         {
             return new StartNodeData

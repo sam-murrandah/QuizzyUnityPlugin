@@ -72,13 +72,16 @@ namespace QuizGraphEditor
         {
             Node node = null;
 
-            if (type == typeof(QuestionNode))
-                node = new QuestionNode();
+            if (type == typeof(MultipleChoiceNode))
+                node = new MultipleChoiceNode(position);
+            else if (type == typeof(TrueFalseNode))
+                node = new TrueFalseNode(position);
             else if (type == typeof(StartNode))
-                node = new StartNode();
+                node = new StartNode(); // assuming StartNode is concrete
 
             if (node != null)
             {
+                // If node’s position isn’t set in its constructor, you can set it here
                 node.SetPosition(new Rect(position, new Vector2(200, 150)));
                 AddElement(node);
             }
@@ -106,6 +109,36 @@ namespace QuizGraphEditor
             return compatiblePorts;
         }
         #endregion
+        public void CreateMultipleChoiceNode(Vector2 position)
+        {
+            var node = new MultipleChoiceNode(position);
+            AddElement(node);
+        }
+
+        public void CreateTrueFalseNode(Vector2 position)
+        {
+            var node = new TrueFalseNode(position);
+            AddElement(node);
+        }
+
+
+        public bool HasStartNode()
+        {
+            foreach (var element in graphElements)
+            {
+                if (element is StartNode)
+                    return true;
+            }
+            return false;
+        }
+
+        public void CreateStartNode(Vector2 position)
+        {
+            if (HasStartNode()) return; // If a start node already exists, do nothing.
+            var startNode = new StartNode();
+            startNode.SetPosition(new Rect(position, new Vector2(150, 100)));
+            AddElement(startNode);
+        }
 
         #region Serialization
         public void SaveGraph(string filePath)
@@ -115,8 +148,10 @@ namespace QuizGraphEditor
             // Save nodes
             graphElements.ForEach(element =>
             {
-                if (element is QuestionNode questionNode)
-                    quizData.questionNodes.Add(questionNode.GetData());
+                if (element is MultipleChoiceNode mcNode)
+                    quizData.multipleChoiceNodes.Add((MultipleChoiceNodeData)mcNode.GetData());
+                else if (element is TrueFalseNode tfNode)
+                    quizData.trueFalseNodes.Add((TrueFalseNodeData)tfNode.GetData());
                 else if (element is StartNode startNode)
                     quizData.startNodeData = startNode.GetData();
             });
@@ -124,14 +159,19 @@ namespace QuizGraphEditor
             // Save edges
             foreach (var edge in edges)
             {
-                var outputNode = edge.output.node as BaseNode;
-                var inputNode = edge.input.node as BaseNode;
+                var outputNode = edge.output.node as Node; // or BaseNode if StartNode also inherits from it
+                var inputNode = edge.input.node as Node;
+
+                // If you rely on GUID, ensure both MultipleChoiceNode and TrueFalseNode implement GUID like StartNode
+                // For example, if they inherit from a common BaseNode class that defines GUID.
+                var outputGUID = GetGUIDFromNode(outputNode);
+                var inputGUID = GetGUIDFromNode(inputNode);
 
                 quizData.edges.Add(new EdgeData
                 {
-                    outputNodeGUID = outputNode.GUID,
+                    outputNodeGUID = outputGUID,
                     outputPortName = edge.output.portName,
-                    inputNodeGUID = inputNode.GUID,
+                    inputNodeGUID = inputGUID,
                     inputPortName = edge.input.portName
                 });
             }
@@ -141,6 +181,15 @@ namespace QuizGraphEditor
             System.IO.File.WriteAllText(filePath, jsonData);
         }
 
+        // Helper function to extract GUID from node
+        private string GetGUIDFromNode(Node node)
+        {
+            if (node is BaseNode baseNode) return baseNode.GUID;
+            if (node is BaseQuestionNode baseQuestionNode) return baseQuestionNode.GUID;
+            if (node is StartNode start) return start.GUID;
+            return string.Empty;
+        }
+
         public void LoadGraph(string filePath)
         {
             ClearGraph();
@@ -148,15 +197,27 @@ namespace QuizGraphEditor
             var jsonData = System.IO.File.ReadAllText(filePath);
             var quizData = JsonUtility.FromJson<QuizData>(jsonData);
 
-            // Create nodes
             var nodesDict = new Dictionary<string, Node>();
-            foreach (var nodeData in quizData.questionNodes)
+
+            // Recreate MultipleChoiceNodes
+            foreach (var mcData in quizData.multipleChoiceNodes)
             {
-                var node = new QuestionNode(nodeData);
+                var node = new MultipleChoiceNode();
+                node.LoadData(mcData); // Implement LoadData(mcData) in MultipleChoiceNode
                 AddElement(node);
-                nodesDict[nodeData.GUID] = node;
+                nodesDict[mcData.GUID] = node;
             }
 
+            // Recreate TrueFalseNodes
+            foreach (var tfData in quizData.trueFalseNodes)
+            {
+                var node = new TrueFalseNode();
+                node.LoadData(tfData);
+                AddElement(node);
+                nodesDict[tfData.GUID] = node;
+            }
+
+            // Recreate StartNode
             if (quizData.startNodeData != null)
             {
                 var startNode = new StartNode(quizData.startNodeData);
@@ -183,13 +244,13 @@ namespace QuizGraphEditor
 
                 if (outputPort == null)
                 {
-                    Debug.LogError($"Output port '{edgeData.outputPortName}' not found in node {outputNode.title} (GUID: {edgeData.outputNodeGUID}).");
+                    Debug.LogError($"Output port '{edgeData.outputPortName}' not found on node {outputNode.title} (GUID: {edgeData.outputNodeGUID}).");
                     continue;
                 }
 
                 if (inputPort == null)
                 {
-                    Debug.LogError($"Input port '{edgeData.inputPortName}' not found in node {inputNode.title} (GUID: {edgeData.inputNodeGUID}).");
+                    Debug.LogError($"Input port '{edgeData.inputPortName}' not found on node {inputNode.title} (GUID: {edgeData.inputNodeGUID}).");
                     continue;
                 }
 
@@ -204,7 +265,6 @@ namespace QuizGraphEditor
             }
         }
 
-
         private void ClearGraph()
         {
             // Remove all nodes and edges
@@ -212,4 +272,6 @@ namespace QuizGraphEditor
         }
         #endregion
     }
+
+   
 }
