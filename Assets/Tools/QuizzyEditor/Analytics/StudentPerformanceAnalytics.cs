@@ -20,6 +20,7 @@ namespace QuizGraphEditor
         // Additional data as needed
     }
 
+    [CreateAssetMenu(fileName = "StudentPerformanceAnalytics", menuName = "Quiz/Student Performance Analytics")]
     public class StudentPerformanceAnalytics : ScriptableObject
     {
         public List<StudentPerformance> studentPerformances = new List<StudentPerformance>();

@@ -28,6 +28,7 @@ namespace QuizGraphEditor
         {
             title = "Start";
             GUID = Guid.NewGuid().ToString();
+            Debug.Log("Node " + this.title + " GUID: " + GUID);
             capabilities = Capabilities.Movable | Capabilities.Selectable;
 
             // Create a single output port

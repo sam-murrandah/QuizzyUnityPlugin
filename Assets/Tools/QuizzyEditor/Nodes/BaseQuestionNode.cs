@@ -33,6 +33,7 @@ namespace QuizGraphEditor
         {
             title = "Question";
             GUID = Guid.NewGuid().ToString();
+            Debug.Log("Node " + this.title + " GUID: " + GUID);
             capabilities = Capabilities.Movable | Capabilities.Selectable | Capabilities.Deletable | Capabilities.Resizable;
 
             CreatePorts();

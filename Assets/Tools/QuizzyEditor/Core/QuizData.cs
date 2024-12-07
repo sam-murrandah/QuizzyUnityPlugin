@@ -7,11 +7,13 @@ namespace QuizGraphEditor
     [Serializable]
     public class EdgeData
     {
-        public string outputNodeGUID { get; set; }
-        public string outputPortName { get; set; }
-        public string inputNodeGUID { get; set; }
-        public string inputPortName { get; set; }
+        public string outputNodeGUID;
+        public string outputPortName;
+        public string inputNodeGUID;
+        public string inputPortName;
     }
+
+
 
     [Serializable]
     public class QuizData
@@ -40,7 +42,7 @@ namespace QuizGraphEditor
     public class StartNodeData
     {
         public string GUID;
-        internal Vector2 Position;
+        public Vector2 Position;
     }
 
     [Serializable]

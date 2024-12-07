@@ -159,13 +159,16 @@ namespace QuizGraphEditor
             // Save edges
             foreach (var edge in edges)
             {
-                var outputNode = edge.output.node as Node; // or BaseNode if StartNode also inherits from it
+                var outputNode = edge.output.node as Node;
                 var inputNode = edge.input.node as Node;
-
-                // If you rely on GUID, ensure both MultipleChoiceNode and TrueFalseNode implement GUID like StartNode
-                // For example, if they inherit from a common BaseNode class that defines GUID.
                 var outputGUID = GetGUIDFromNode(outputNode);
                 var inputGUID = GetGUIDFromNode(inputNode);
+
+                if (string.IsNullOrEmpty(outputGUID) || string.IsNullOrEmpty(inputGUID))
+                {
+                    Debug.LogError("Skipping edge due to null or empty GUID. Check your graph for invalid connections.");
+                    continue; // Skip adding this edge
+                }
 
                 quizData.edges.Add(new EdgeData
                 {
@@ -175,6 +178,7 @@ namespace QuizGraphEditor
                     inputPortName = edge.input.portName
                 });
             }
+
 
             // Serialize to JSON
             var jsonData = JsonUtility.ToJson(quizData, true);
@@ -203,9 +207,12 @@ namespace QuizGraphEditor
             foreach (var mcData in quizData.multipleChoiceNodes)
             {
                 var node = new MultipleChoiceNode();
-                node.LoadData(mcData); // Implement LoadData(mcData) in MultipleChoiceNode
+                node.LoadData(mcData);
                 AddElement(node);
                 nodesDict[mcData.GUID] = node;
+
+                // Debugging: Log ports right after load
+                LogNodePorts(node);
             }
 
             // Recreate TrueFalseNodes
@@ -215,6 +222,9 @@ namespace QuizGraphEditor
                 node.LoadData(tfData);
                 AddElement(node);
                 nodesDict[tfData.GUID] = node;
+
+                // Debugging: Log ports right after load
+                LogNodePorts(node);
             }
 
             // Recreate StartNode
@@ -223,11 +233,16 @@ namespace QuizGraphEditor
                 var startNode = new StartNode(quizData.startNodeData);
                 AddElement(startNode);
                 nodesDict[quizData.startNodeData.GUID] = startNode;
+
+                // Debugging: Log ports right after load
+                LogNodePorts(startNode);
             }
 
-            // Create edges
+            // Now attempt to reconnect edges
             foreach (var edgeData in quizData.edges)
             {
+                Debug.Log($"Attempting to create edge from {edgeData.outputNodeGUID} ({edgeData.outputPortName}) to {edgeData.inputNodeGUID} ({edgeData.inputPortName})");
+
                 if (!nodesDict.TryGetValue(edgeData.outputNodeGUID, out var outputNode))
                 {
                     Debug.LogError($"Output node with GUID {edgeData.outputNodeGUID} not found.");
@@ -240,28 +255,48 @@ namespace QuizGraphEditor
                 }
 
                 var outputPort = outputNode.outputContainer.Q<Port>(edgeData.outputPortName);
-                var inputPort = inputNode.inputContainer.Q<Port>(edgeData.inputPortName);
-
                 if (outputPort == null)
                 {
                     Debug.LogError($"Output port '{edgeData.outputPortName}' not found on node {outputNode.title} (GUID: {edgeData.outputNodeGUID}).");
-                    continue;
                 }
 
+                var inputPort = inputNode.inputContainer.Q<Port>(edgeData.inputPortName);
                 if (inputPort == null)
                 {
                     Debug.LogError($"Input port '{edgeData.inputPortName}' not found on node {inputNode.title} (GUID: {edgeData.inputNodeGUID}).");
-                    continue;
                 }
 
-                var edge = new Edge
+                if (outputPort != null && inputPort != null)
                 {
-                    output = outputPort,
-                    input = inputPort
-                };
-                edge.input.Connect(edge);
-                edge.output.Connect(edge);
-                AddElement(edge);
+                    var edge = new Edge
+                    {
+                        output = outputPort,
+                        input = inputPort
+                    };
+                    edge.input.Connect(edge);
+                    edge.output.Connect(edge);
+                    AddElement(edge);
+                }
+            }
+        }
+        private void LogNodePorts(Node node)
+        {
+            Debug.Log($"Logging ports for node: {node.title}, GUID: {(node is BaseNode bn ? bn.GUID : (node is StartNode sn ? sn.GUID : "No GUID"))}");
+
+            foreach (var child in node.inputContainer.Children())
+            {
+                if (child is Port p)
+                {
+                    Debug.Log($"{node.title} Input Port: {p.name}");
+                }
+            }
+
+            foreach (var child in node.outputContainer.Children())
+            {
+                if (child is Port p)
+                {
+                    Debug.Log($"{node.title} Output Port: {p.name}");
+                }
             }
         }
 

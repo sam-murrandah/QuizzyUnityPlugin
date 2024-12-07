@@ -102,10 +102,13 @@ namespace QuizGraphEditor
                 Explanation = data.Explanation;
 
                 SetPosition(new Rect(data.Position, new Vector2(200, 150)));
+
+                // Make sure these are called to recreate ports and fields
                 UpdateAnswerFields();
                 UpdateOutputPorts();
                 ApplyColorPreferences();
             }
         }
+
     }
 }
