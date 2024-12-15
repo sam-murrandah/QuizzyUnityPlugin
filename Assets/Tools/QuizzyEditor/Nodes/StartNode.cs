@@ -36,6 +36,7 @@ namespace QuizGraphEditor
             outputPort.portName = "Start Quiz";
             outputPort.name = outputPort.portName; // For serialization
             outputContainer.Add(outputPort);
+            AddToClassList("start-node");
 
             RefreshExpandedState();
             RefreshPorts();
@@ -44,7 +45,6 @@ namespace QuizGraphEditor
         public void ApplyColorPreferences()
         {
             style.backgroundColor = UserPreferences.StartNodeColor;
-            titleContainer.style.color = UserPreferences.StartNodeTextColor;
         }
         public StartNodeData GetData()
         {

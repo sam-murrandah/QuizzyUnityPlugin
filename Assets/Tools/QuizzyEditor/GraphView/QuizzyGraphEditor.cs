@@ -21,6 +21,10 @@ namespace QuizGraphEditor
 
         private void OnEnable()
         {
+            // Load stored preferences before building UI
+            UserPreferences.LoadPreferences();
+
+            // Main container layout
             rootVisualElement.style.flexDirection = FlexDirection.Column;
 
             ConstructToolbar();
@@ -31,19 +35,20 @@ namespace QuizGraphEditor
 
         private void OnDisable()
         {
-            if (_graphView != null)
-                rootVisualElement.Remove(_graphView);
-            if (_settingsView != null)
-                rootVisualElement.Remove(_settingsView);
+            if (_graphView != null) rootVisualElement.Remove(_graphView);
+            if (_settingsView != null) rootVisualElement.Remove(_settingsView);
         }
 
+        /// <summary>
+        /// Constructs the top toolbar with view switching and save/load actions.
+        /// </summary>
         private void ConstructToolbar()
         {
             var toolbar = new Toolbar();
 
             _toolbarMenu = new ToolbarMenu { text = "Graph View" };
-            _toolbarMenu.menu.AppendAction("Graph View", action => ShowGraphView(), DropdownMenuAction.Status.Normal);
-            _toolbarMenu.menu.AppendAction("Settings", action => ShowSettingsView(), DropdownMenuAction.Status.Normal);
+            _toolbarMenu.menu.AppendAction("Graph View", _ => ShowGraphView(), DropdownMenuAction.Status.Normal);
+            _toolbarMenu.menu.AppendAction("Settings", _ => ShowSettingsView(), DropdownMenuAction.Status.Normal);
             toolbar.Add(_toolbarMenu);
 
             var saveButton = new Button(SaveData) { text = "Save" };
@@ -55,81 +60,105 @@ namespace QuizGraphEditor
             rootVisualElement.Add(toolbar);
         }
 
+        /// <summary>
+        /// Creates and configures the main graph view element.
+        /// </summary>
         private void ConstructGraphView()
         {
-            _graphView = new QuizGraphView(this) { name = "Quiz Graph" };
-            _graphView.style.flexGrow = 1;
-            _graphView.style.display = DisplayStyle.None; // Hidden initially until ShowGraphView() is called
+            _graphView = new QuizGraphView(this)
+            {
+                name = "Quiz Graph",
+                style =
+                {
+                    flexGrow = 1,
+                    display = DisplayStyle.None
+                }
+            };
             rootVisualElement.Add(_graphView);
         }
 
+        /// <summary>
+        /// Creates and configures the settings view panel.
+        /// </summary>
         private void ConstructSettingsView()
         {
             _settingsView = new VisualElement { name = "Settings View" };
             _settingsView.style.flexGrow = 1;
-            _settingsView.style.display = DisplayStyle.None; // Hidden initially until ShowSettingsView() is called
+            _settingsView.style.display = DisplayStyle.None;
 
             var settingsContainer = new VisualElement
             {
                 style =
-        {
-            paddingTop = 10,
-            paddingLeft = 10,
-            paddingRight = 10
-        }
+                {
+                    paddingTop = 10,
+                    paddingLeft = 10,
+                    paddingRight = 10
+                }
             };
 
             var titleLabel = new Label("Settings")
             {
                 style =
-        {
-            unityFontStyleAndWeight = FontStyle.Bold,
-            fontSize = 18
-        }
+                {
+                    unityFontStyleAndWeight = FontStyle.Bold,
+                    fontSize = 18
+                }
             };
             settingsContainer.Add(titleLabel);
-            // Add section for Start Node
+
+            // Start Node settings
             AddNodeSettingsSection(
-                settingsContainer,
-                "Start Node",
-                UserPreferences.StartNodeColor,
-                UserPreferences.StartNodeTextColor,
-                (newNodeColor) => { UserPreferences.StartNodeColor = newNodeColor; ApplyStyles(); }
-                //(newTextColor) => { UserPreferences.StartNodeTextColor = newTextColor; ApplyStyles(); }
-            );
-            // Add section for Multiple Choice Node
-            AddNodeSettingsSection(
-                settingsContainer,
-                "Multiple Choice Node",
-                UserPreferences.MultipleChoiceColor,
-                UserPreferences.MultipleChoiceTextColor,
-                (newNodeColor) => { UserPreferences.MultipleChoiceColor = newNodeColor; ApplyStyles(); }
-               // (newTextColor) => { UserPreferences.MultipleChoiceTextColor = newTextColor; ApplyStyles(); }
+                container: settingsContainer,
+                sectionTitle: "Start Node",
+                nodeColor: UserPreferences.StartNodeColor,
+                onNodeColorChanged: newColor =>
+                {
+                    UserPreferences.StartNodeColor = newColor;
+                    UserPreferences.SavePreferences();
+                    ApplyStyles();
+                }
             );
 
-            // Add section for True/False Node
+            // Multiple Choice Node settings
             AddNodeSettingsSection(
-                settingsContainer,
-                "True/False Node",
-                UserPreferences.TrueFalseColor,
-                UserPreferences.TrueFalseTextColor,
-                (newNodeColor) => { UserPreferences.TrueFalseColor = newNodeColor; ApplyStyles(); }
-                //(newTextColor) => { UserPreferences.TrueFalseTextColor = newTextColor; ApplyStyles(); }
+                container: settingsContainer,
+                sectionTitle: "Multiple Choice Node",
+                nodeColor: UserPreferences.MultipleChoiceColor,
+                onNodeColorChanged: newColor =>
+                {
+                    UserPreferences.MultipleChoiceColor = newColor;
+                    UserPreferences.SavePreferences();
+                    ApplyStyles();
+                }
             );
+
+            // True/False Node settings
+            AddNodeSettingsSection(
+                container: settingsContainer,
+                sectionTitle: "True/False Node",
+                nodeColor: UserPreferences.TrueFalseColor,
+                onNodeColorChanged: newColor =>
+                {
+                    UserPreferences.TrueFalseColor = newColor;
+                    UserPreferences.SavePreferences();
+                    ApplyStyles();
+                }
+            );
+
             _settingsView.Add(settingsContainer);
             rootVisualElement.Add(_settingsView);
         }
 
+        /// <summary>
+        /// Adds a settings section for a given node type (e.g., Start Node, Multiple Choice Node).
+        /// </summary>
         private void AddNodeSettingsSection(
             VisualElement container,
             string sectionTitle,
             Color nodeColor,
-            Color textColor,
             Action<Color> onNodeColorChanged
-            //Action<Color> onTextColorChanged
         )
         {
-            // Add a header for the node type
             var headerLabel = new Label(sectionTitle)
             {
                 style =
@@ -143,24 +172,11 @@ namespace QuizGraphEditor
             container.Add(headerLabel);
 
             // Node Color field
-            var nodeColorField = new ColorField("Node Color")
-            {
-                value = nodeColor
-            };
+            var nodeColorField = new ColorField("Node Color") { value = nodeColor };
             nodeColorField.RegisterValueChangedCallback(evt => onNodeColorChanged(evt.newValue));
             container.Add(nodeColorField);
 
-            // Text Color field
-            // TODO: Text color isnt updating, likely an issue to do with ApplyColors(), commenting this out to disable it
-            /*
-             * var textColorField = new ColorField("Text Color")
-            {
-                value = textColor
-            };
-            textColorField.RegisterValueChangedCallback(evt => onTextColorChanged(evt.newValue));
-            container.Add(textColorField);
-            */
-            // Add spacing between sections
+            // Optional spacer between sections
             var spacer = new VisualElement
             {
                 style =
@@ -168,23 +184,15 @@ namespace QuizGraphEditor
                     height = 3,
                     marginTop = 10,
                     marginBottom = 10,
-                    backgroundColor = new Color(0.1f, 0.1f, 0.1f, 0.5f) // Optional separator
+                    backgroundColor = new Color(0.1f, 0.1f, 0.1f, 0.5f)
                 }
             };
             container.Add(spacer);
         }
 
-        private void AddColorField(VisualElement container, string label, Color initialValue, Action<Color> onChange)
-        {
-            var colorField = new ColorField(label)
-            {
-                value = initialValue
-            };
-            colorField.RegisterValueChangedCallback(evt => onChange(evt.newValue));
-            container.Add(colorField);
-        }
-
-
+        /// <summary>
+        /// Switches to the Graph View.
+        /// </summary>
         private void ShowGraphView()
         {
             _toolbarMenu.text = "Graph View";
@@ -192,6 +200,9 @@ namespace QuizGraphEditor
             _settingsView.style.display = DisplayStyle.None;
         }
 
+        /// <summary>
+        /// Switches to the Settings View.
+        /// </summary>
         private void ShowSettingsView()
         {
             _toolbarMenu.text = "Settings";
@@ -199,6 +210,9 @@ namespace QuizGraphEditor
             _settingsView.style.display = DisplayStyle.Flex;
         }
 
+        /// <summary>
+        /// Saves the current graph data to a JSON file.
+        /// </summary>
         private void SaveData()
         {
             var path = EditorUtility.SaveFilePanel("Save Quiz Graph", "", "QuizGraph.json", "json");
@@ -208,6 +222,9 @@ namespace QuizGraphEditor
             }
         }
 
+        /// <summary>
+        /// Loads graph data from a JSON file.
+        /// </summary>
         private void LoadData()
         {
             var path = EditorUtility.OpenFilePanel("Load Quiz Graph", "", "json");
@@ -217,16 +234,24 @@ namespace QuizGraphEditor
             }
         }
 
+        /// <summary>
+        /// Applies updated color preferences to all nodes in the graph view.
+        /// </summary>
         private void ApplyStyles()
         {
             if (_graphView == null) return;
 
             foreach (var element in _graphView.graphElements)
             {
-                if (element is BaseQuestionNode bqn)
-                    bqn.ApplyColorPreferences();
-                else if (element is StartNode sNode)
-                    sNode.ApplyColorPreferences();
+                switch (element)
+                {
+                    case BaseQuestionNode bqn:
+                        bqn.ApplyColorPreferences();
+                        break;
+                    case StartNode sNode:
+                        sNode.ApplyColorPreferences();
+                        break;
+                }
             }
         }
     }

@@ -66,7 +66,6 @@ namespace QuizGraphEditor
         public override void ApplyColorPreferences()
         {
             style.backgroundColor = UserPreferences.MultipleChoiceColor;
-            titleContainer.style.color = UserPreferences.MultipleChoiceTextColor;
         }
 
 
@@ -102,13 +101,18 @@ namespace QuizGraphEditor
                 Explanation = data.Explanation;
 
                 SetPosition(new Rect(data.Position, new Vector2(200, 150)));
+                AddToClassList("multiple-choice-node");
 
-                // Make sure these are called to recreate ports and fields
+                // Rebuild fields and ports
                 UpdateAnswerFields();
                 UpdateOutputPorts();
                 ApplyColorPreferences();
+
+                // Now update UI fields from data
+                RefreshUIFromData();
             }
         }
+
 
     }
 }

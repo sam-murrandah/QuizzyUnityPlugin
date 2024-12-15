@@ -5,31 +5,34 @@ namespace QuizGraphEditor
 {
     public static class UserPreferences
     {
-        // Existing colour preferences
-        public static Color MultipleChoiceColor { get; set; } = new Color(0.941f, 0.972f, 1f); // Example
-        public static Color TrueFalseColor { get; set; } = new Color(1f, 1f, 0.8f); // Example
-        public static Color StartNodeColor { get; set; } = new Color(0.902f, 1f, 0.902f); // Example
+        private const string PrefKeyStartNodeColor = "QuizGraphEditor_StartNodeColor";
+        private const string PrefKeyMultipleChoiceColor = "QuizGraphEditor_MultipleChoiceColor";
+        private const string PrefKeyTrueFalseColor = "QuizGraphEditor_TrueFalseColor";
 
-        // New text colour preferences
-        public static Color MultipleChoiceTextColor
+        // Default colours
+        private static readonly Color DefaultStartColor = new Color(0.9f, 1f, 0.9f);
+        private static readonly Color DefaultMCColor = new Color(0.94f, 0.97f, 1f);
+        private static readonly Color DefaultTFColor = new Color(1f, 1f, 0.8f);
+
+        public static Color StartNodeColor { get; set; } = DefaultStartColor;
+        public static Color MultipleChoiceColor { get; set; } = DefaultMCColor;
+        public static Color TrueFalseColor { get; set; } = DefaultTFColor;
+
+        public static void LoadPreferences()
         {
-            get => GetColor("QuizGraphEditor_MultipleChoiceTextColor", Color.black);
-            set => SetColor("QuizGraphEditor_MultipleChoiceTextColor", value);
+            StartNodeColor = LoadColor(PrefKeyStartNodeColor, DefaultStartColor);
+            MultipleChoiceColor = LoadColor(PrefKeyMultipleChoiceColor, DefaultMCColor);
+            TrueFalseColor = LoadColor(PrefKeyTrueFalseColor, DefaultTFColor);
         }
 
-        public static Color TrueFalseTextColor
+        public static void SavePreferences()
         {
-            get => GetColor("QuizGraphEditor_TrueFalseTextColor", Color.black);
-            set => SetColor("QuizGraphEditor_TrueFalseTextColor", value);
+            SaveColor(PrefKeyStartNodeColor, StartNodeColor);
+            SaveColor(PrefKeyMultipleChoiceColor, MultipleChoiceColor);
+            SaveColor(PrefKeyTrueFalseColor, TrueFalseColor);
         }
 
-        public static Color StartNodeTextColor
-        {
-            get => GetColor("QuizGraphEditor_StartNodeTextColor", Color.black);
-            set => SetColor("QuizGraphEditor_StartNodeTextColor", value);
-        }
-
-        private static Color GetColor(string key, Color defaultColor)
+        private static Color LoadColor(string key, Color defaultColor)
         {
             if (EditorPrefs.HasKey(key))
             {
@@ -42,7 +45,7 @@ namespace QuizGraphEditor
             return defaultColor;
         }
 
-        private static void SetColor(string key, Color color)
+        private static void SaveColor(string key, Color color)
         {
             string colorString = ColorUtility.ToHtmlStringRGBA(color);
             EditorPrefs.SetString(key, $"#{colorString}");

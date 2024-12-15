@@ -82,10 +82,15 @@ namespace QuizGraphEditor
                 Explanation = data.Explanation;
 
                 SetPosition(new Rect(data.Position, new Vector2(200, 150)));
+                AddToClassList("truefalse-node");
+
                 UpdateAnswerFields();
                 UpdateOutputPorts();
                 ApplyColorPreferences();
+
+                RefreshUIFromData();
             }
         }
+
     }
 }

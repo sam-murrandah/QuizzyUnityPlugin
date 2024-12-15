@@ -12,7 +12,6 @@ public class QuizRunner : MonoBehaviour
 
     private void Start()
     {
-        // Load quiz data, set up logic
         quizLogic = new RuntimeQuizLogic();
         quizLogic.LoadQuiz(quizJsonFilePath);
 
@@ -21,6 +20,7 @@ public class QuizRunner : MonoBehaviour
         {
             uiManager.ShowQuestion(question, answers);
         };
+
         uiManager.OnAnswerSelected += (answerIndex) => quizLogic.SubmitAnswer(answerIndex);
 
         quizLogic.OnQuizFinished += (score, timeTaken) =>
@@ -29,6 +29,28 @@ public class QuizRunner : MonoBehaviour
             Debug.Log("Quiz finished. Score: " + score);
         };
 
+        quizLogic.OnTimerUpdated += (timeRemaining) =>
+        {
+            uiManager.UpdateTimer(timeRemaining);
+        };
+
+        quizLogic.OnTimeExpired += () =>
+        {
+            uiManager.UpdateTimer(0f);
+        };
+
+        quizLogic.OnDisplayResults += (results) =>
+        {
+            uiManager.HideTimer(); // Hide timer if still visible
+            uiManager.ShowResults(results);
+        };
+
         quizLogic.StartQuiz();
+    }
+
+    private void Update()
+    {
+        // Update the quiz logic every frame to handle timer
+        quizLogic.Update(Time.deltaTime);
     }
 }

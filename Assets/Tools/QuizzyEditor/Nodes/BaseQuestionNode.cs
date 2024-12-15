@@ -53,38 +53,45 @@ namespace QuizGraphEditor
             inputContainer.Add(input);
         }
 
-        protected virtual void AddFields()
+        protected TextField categoryField;
+        protected EnumField difficultyField;
+        protected FloatField timerField;
+        protected IntegerField pointsField;
+        protected TextField questionField;
+        protected TextField explanationField;
+
+        protected void AddFields()
         {
             var container = new VisualElement();
 
             // Category field
-            var categoryField = new TextField("Category:");
+            categoryField = new TextField("Category:");
             categoryField.RegisterValueChangedCallback(evt => Category = evt.newValue);
             container.Add(categoryField);
 
             // Difficulty dropdown
-            var difficultyField = new EnumField("Difficulty", Difficulty.Medium);
+            difficultyField = new EnumField("Difficulty", Difficulty.Medium);
             difficultyField.RegisterValueChangedCallback(evt => DifficultyLevel = (Difficulty)evt.newValue);
             container.Add(difficultyField);
 
             // Time limit field
-            var timerField = new FloatField("Time Limit (seconds):");
+            timerField = new FloatField("Time Limit (seconds):");
             timerField.RegisterValueChangedCallback(evt => TimeLimit = evt.newValue);
             container.Add(timerField);
 
             // Point value field
-            var pointsField = new IntegerField("Point Value:");
+            pointsField = new IntegerField("Point Value:");
             pointsField.RegisterValueChangedCallback(evt => PointValue = evt.newValue);
             container.Add(pointsField);
 
             // Question text
-            var questionField = new TextField("Question:");
+            questionField = new TextField("Question:");
             questionField.multiline = true;
             questionField.RegisterValueChangedCallback(evt => QuestionText = evt.newValue);
             container.Add(questionField);
 
             // Explanation field
-            var explanationField = new TextField("Explanation:");
+            explanationField = new TextField("Explanation:");
             explanationField.multiline = true;
             explanationField.RegisterValueChangedCallback(evt => Explanation = evt.newValue);
             container.Add(explanationField);
@@ -100,6 +107,35 @@ namespace QuizGraphEditor
 
             RefreshExpandedState();
         }
+
+        /// <summary>
+        /// Called after LoadData() to update UI fields with data values.
+        /// </summary>
+        protected void RefreshUIFromData()
+        {
+            if (categoryField != null)
+                categoryField.SetValueWithoutNotify(Category);
+
+            if (difficultyField != null)
+                difficultyField.SetValueWithoutNotify(DifficultyLevel);
+
+            if (timerField != null)
+                timerField.SetValueWithoutNotify(TimeLimit);
+
+            if (pointsField != null)
+                pointsField.SetValueWithoutNotify(PointValue);
+
+            if (questionField != null)
+                questionField.SetValueWithoutNotify(QuestionText);
+
+            if (explanationField != null)
+                explanationField.SetValueWithoutNotify(Explanation);
+
+            // Also refresh answer fields if needed
+            UpdateAnswerFields();
+            UpdateOutputPorts();
+        }
+
 
         protected abstract void UpdateAnswerFields();
         protected abstract void UpdateOutputPorts();
