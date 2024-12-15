@@ -84,8 +84,8 @@ namespace QuizGraphEditor
             if (!questionNodes.TryGetValue(currentNodeGUID, out var currentNode))
             {
                 Debug.LogError($"Current node with GUID {currentNodeGUID} not found.");
-                EndQuiz();
-                return;
+                //EndQuiz();
+                //return;
             }
 
             if (currentNode is MultipleChoiceNodeData mcNode)

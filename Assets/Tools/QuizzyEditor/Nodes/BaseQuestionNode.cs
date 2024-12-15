@@ -47,7 +47,7 @@ namespace QuizGraphEditor
         protected virtual void CreatePorts()
         {
             // Input port
-            var input = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Single, typeof(bool));
+            var input = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
             input.portName = "Input";
             input.name = input.portName; // For serialization
             inputContainer.Add(input);

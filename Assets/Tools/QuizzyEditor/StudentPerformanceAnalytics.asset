@@ -12,8 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 387a17a37963358419d3fe4382f2d4b5, type: 3}
   m_Name: StudentPerformanceAnalytics
   m_EditorClassIdentifier: 
-  studentPerformances:
-  - StudentID: TestStudent001
-    Attempts:
-    - Score: 0
-      TimeTaken: 0
+  studentPerformances: []

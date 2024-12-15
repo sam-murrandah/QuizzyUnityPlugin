@@ -202,6 +202,78 @@ PrefabInstance:
       propertyPath: m_Name
       value: QuizCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 2523608671913361079, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2523608671913361079, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2523608671913361079, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2523608671913361079, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2523608671913361079, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2523608671913361079, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3608741020752549568, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3608741020752549568, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3608741020752549568, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3608741020752549568, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3608741020752549568, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3608741020752549568, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4667791811403835851, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4667791811403835851, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4667791811403835851, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4667791811403835851, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4667791811403835851, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4667791811403835851, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4850307968271646981, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -240,6 +312,30 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4850307968271646981, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6952229431450801354, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6952229431450801354, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6952229431450801354, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6952229431450801354, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6952229431450801354, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6952229431450801354, guid: 5d16be124cbc90042a2d507c0b0d6adb, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -489,9 +585,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uiManager: {fileID: 608032368}
-  quizJsonFilePath: C:\Users\Sammu\Documents\QuizGraph.json
+  quizJsonFilePath: C:\Users\Sammu\Documents\Test.json
   analytics: {fileID: 11400000, guid: 2a29bc6614b357845a94d50b0657213e, type: 2}
-  studentID: TestStudent
+  studentID: JesSMiller
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -108,7 +108,7 @@ namespace QuizGraphEditor
 
             return compatiblePorts;
         }
-        #endregion
+
         public void CreateMultipleChoiceNode(Vector2 position)
         {
             var node = new MultipleChoiceNode(position);
@@ -120,6 +120,8 @@ namespace QuizGraphEditor
             var node = new TrueFalseNode(position);
             AddElement(node);
         }
+
+        #endregion
 
 
         public bool HasStartNode()
