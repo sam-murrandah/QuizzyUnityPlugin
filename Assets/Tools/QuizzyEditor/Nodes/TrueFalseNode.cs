@@ -1,3 +1,15 @@
+/*
+Made by Samuel Murrandah
+Student Number: 1031741
+Student Email: 1031741@student.sae.edu.au
+Class Code: GPG315
+Assignment: 2 
+
+AI Declaration:
+Generative AI was used for editing and organisation such as reordering functions as well as some comments.
+All code and logic was created and written by me
+*/
+
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,6 +24,9 @@ namespace QuizGraphEditor
         public TrueFalseNode() : base() { }
         public TrueFalseNode(Vector2 position) : base(position) { }
 
+        /// <summary>
+        /// Updates the answer fields for True/False nodes. Creates a toggle to select the correct answer.
+        /// </summary>
         protected override void UpdateAnswerFields()
         {
             answerFieldsContainer.Clear();
@@ -25,6 +40,9 @@ namespace QuizGraphEditor
             RefreshExpandedState();
         }
 
+        /// <summary>
+        /// Updates the output ports for True/False nodes. Creates ports for "True" and "False" answers.
+        /// </summary>
         protected override void UpdateOutputPorts()
         {
             outputContainer.Clear();
@@ -43,13 +61,96 @@ namespace QuizGraphEditor
             RefreshPorts();
         }
 
+        /// <summary>
+        /// Applies the colour preferences for True/False nodes based on user settings.
+        /// </summary>
         public override void ApplyColorPreferences()
         {
             style.backgroundColor = UserPreferences.TrueFalseColor;
-            //style.color = UserPreferences.TrueFalseTextColor;
         }
 
+        /// <summary>
+        /// Adds the main fields (e.g., Question, Category, Difficulty) to the node UI.
+        /// </summary>
+        protected override void AddFields()
+        {
+            var container = new VisualElement();
+            // Question text
+            questionField = new TextField("Question:")
+            {
+                multiline = true
+            };
+            questionField.RegisterValueChangedCallback(evt =>
+            {
+                QuestionText = evt.newValue;
+                Debug.Log($"TrueFalseNode: QuestionText updated to {QuestionText}");
+            });
+            container.Add(questionField);
+            // Category field
+            categoryField = new TextField("Category:");
+            categoryField.RegisterValueChangedCallback(evt =>
+            {
+                Category = evt.newValue;
+                Debug.Log($"TrueFalseNode: Category updated to {Category}");
+            });
+            container.Add(categoryField);
 
+            // Difficulty dropdown
+            difficultyField = new EnumField("Difficulty", Difficulty.Medium);
+            difficultyField.RegisterValueChangedCallback(evt =>
+            {
+                DifficultyLevel = (Difficulty)evt.newValue;
+                Debug.Log($"TrueFalseNode: DifficultyLevel updated to {DifficultyLevel}");
+            });
+            container.Add(difficultyField);
+
+            // Time limit field
+            timerField = new FloatField("Time Limit (seconds):");
+            timerField.RegisterValueChangedCallback(evt =>
+            {
+                TimeLimit = evt.newValue;
+                Debug.Log($"TrueFalseNode: TimeLimit updated to {TimeLimit}");
+            });
+            container.Add(timerField);
+
+            // Point value field
+            pointsField = new IntegerField("Point Value:");
+            pointsField.RegisterValueChangedCallback(evt =>
+            {
+                PointValue = evt.newValue;
+                Debug.Log($"TrueFalseNode: PointValue updated to {PointValue}");
+            });
+            container.Add(pointsField);
+
+            
+
+            // Explanation field
+            explanationField = new TextField("Explanation:")
+            {
+                multiline = true
+            };
+            explanationField.RegisterValueChangedCallback(evt =>
+            {
+                Explanation = evt.newValue;
+                Debug.Log($"TrueFalseNode: Explanation updated to {Explanation}");
+            });
+            container.Add(explanationField);
+
+            extensionContainer.Add(container);
+
+            // Initialize answer fields container
+            answerFieldsContainer = new VisualElement();
+            extensionContainer.Add(answerFieldsContainer);
+
+            UpdateAnswerFields();
+            UpdateOutputPorts();
+
+            RefreshExpandedState();
+        }
+
+        /// <summary>
+        /// Retrieves the data from the True/False node in a serializable format.
+        /// </summary>
         public override BaseQuestionNodeData GetData()
         {
             return new TrueFalseNodeData
@@ -67,6 +168,9 @@ namespace QuizGraphEditor
             };
         }
 
+        /// <summary>
+        /// Loads data into the True/False node, setting fields and ports based on serialized data.
+        /// </summary>
         public override void LoadData(BaseQuestionNodeData baseData)
         {
             if (baseData is TrueFalseNodeData data)

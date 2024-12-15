@@ -1,3 +1,15 @@
+/*
+Made by Samuel Murrandah
+Student Number: 1031741
+Student Email: 1031741@student.sae.edu.au
+Class Code: GPG315
+Assignment: 2 
+
+AI Declaration:
+Generative AI was used for editing and organisation such as reordering functions as well as some comments.
+All code and logic was created and written by me
+*/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +18,7 @@ namespace QuizGraphEditor
 {
     public class RuntimeQuizLogic
     {
+        #region Fields
         private QuizData quizData;
         private Dictionary<string, BaseQuestionNodeData> questionNodes;
         private Dictionary<string, List<EdgeData>> adjacencyList;
@@ -21,14 +34,20 @@ namespace QuizGraphEditor
 
         // Store question results for final summary
         private List<ResultData> results = new List<ResultData>();
+        #endregion
 
-        // Events
+        #region Events
         public event Action<string, string[]> OnQuestionPresented;
         public event Action<int, float> OnQuizFinished;
         public event Action<float> OnTimerUpdated;
         public event Action OnTimeExpired;
         public event Action<List<ResultData>> OnDisplayResults;
+        #endregion
 
+        #region Quiz Setup
+        /// <summary>
+        /// Loads the quiz data from a JSON file and sets up the runtime data structures.
+        /// </summary>
         public void LoadQuiz(string filePath)
         {
             if (!System.IO.File.Exists(filePath))
@@ -65,6 +84,9 @@ namespace QuizGraphEditor
             }
         }
 
+        /// <summary>
+        /// Starts the quiz by initializing values and presenting the first question.
+        /// </summary>
         public void StartQuiz()
         {
             if (string.IsNullOrEmpty(currentNodeGUID))
@@ -105,27 +127,24 @@ namespace QuizGraphEditor
             }
 
             // Assuming the start node leads to exactly one next node (typical scenario)
-            // If multiple, you could choose the first or implement logic to pick one.
             var nextNodeGUID = edges[0].inputNodeGUID;
 
-            // If this next node is actually a question node, return it.
-            // If it's not found in questionNodes, it may not be a question node.
             if (questionNodes.ContainsKey(nextNodeGUID))
             {
                 return nextNodeGUID;
             }
             else
             {
-                // If the next node is not a question node, attempt to follow its edges recursively
-                // But typically, StartNode should connect directly to a question node.
-                // If your graph can have multiple "transition" nodes, you need to handle that here.
-                // For simplicity, assume it goes directly to a question node.
                 Debug.LogWarning("Next node after StartNode is not a question node. Check your graph.");
                 return string.Empty;
             }
         }
+        #endregion
 
-
+        #region Quiz Logic
+        /// <summary>
+        /// Presents the next question in the quiz and starts the timer if applicable.
+        /// </summary>
         private void PresentNextQuestion()
         {
             if (string.IsNullOrEmpty(currentNodeGUID))
@@ -165,30 +184,29 @@ namespace QuizGraphEditor
             }
             else
             {
-                // Unknown node type; skip
                 Debug.LogWarning("Unknown node type encountered. Skipping...");
                 MoveToNextNode(0);
                 return;
             }
 
-            // Start the timer if timeLimit > 0
             StartTimer(timeLimit);
 
-            // Present the question
             OnQuestionPresented?.Invoke(questionText, answers);
 
-            // Prepare a result entry for this question
             results.Add(new ResultData
             {
                 QuestionText = questionText,
                 Answers = answers,
                 Explanation = explanation,
                 CorrectAnswerIndex = correctIndex,
-                ChosenAnswerIndex = -1, // Not chosen yet
+                ChosenAnswerIndex = -1,
                 IsCorrect = false
             });
         }
 
+        /// <summary>
+        /// Processes the player's selected answer and updates the quiz state.
+        /// </summary>
         public void SubmitAnswer(int selectedIndex)
         {
             if (!questionNodes.TryGetValue(currentNodeGUID, out var currentNode))
@@ -222,6 +240,9 @@ namespace QuizGraphEditor
             MoveToNextNode(selectedIndex);
         }
 
+        /// <summary>
+        /// Moves to the next node in the quiz based on the player's answer.
+        /// </summary>
         private void MoveToNextNode(int selectedIndex)
         {
             if (!adjacencyList.TryGetValue(currentNodeGUID, out var edges))
@@ -231,20 +252,55 @@ namespace QuizGraphEditor
                 return;
             }
 
-            if (selectedIndex >= 0 && selectedIndex < edges.Count)
+            string expectedPortName;
+
+            if (questionNodes.TryGetValue(currentNodeGUID, out var currentNode))
             {
-                currentNodeGUID = edges[selectedIndex].inputNodeGUID;
+                if (currentNode is MultipleChoiceNodeData)
+                {
+                    expectedPortName = $"Answer {selectedIndex + 1}";
+                }
+                else if (currentNode is TrueFalseNodeData)
+                {
+                    expectedPortName = (selectedIndex == 0) ? "True" : "False";
+                }
+                else
+                {
+                    if (edges.Count > 0)
+                    {
+                        currentNodeGUID = edges[0].inputNodeGUID;
+                        PresentNextQuestion();
+                    }
+                    else
+                    {
+                        EndQuiz();
+                    }
+                    return;
+                }
+
+                var chosenEdge = edges.Find(e => e.outputPortName == expectedPortName);
+
+                if (chosenEdge == null)
+                {
+                    Debug.LogError($"No edge found for port '{expectedPortName}' on node {currentNodeGUID}. Ending quiz...");
+                    EndQuiz();
+                }
+                else
+                {
+                    currentNodeGUID = chosenEdge.inputNodeGUID;
+                    PresentNextQuestion();
+                }
             }
             else
             {
-                Debug.LogError("Selected index is out of bounds for edges. Ending quiz...");
+                Debug.LogError("Current node not found in questionNodes dictionary.");
                 EndQuiz();
-                return;
             }
-
-            PresentNextQuestion();
         }
 
+        /// <summary>
+        /// Ends the quiz and triggers events for displaying the final score and results.
+        /// </summary>
         private void EndQuiz()
         {
             StopTimer();
@@ -254,8 +310,12 @@ namespace QuizGraphEditor
             OnQuizFinished?.Invoke(score, timeTaken);
             OnDisplayResults?.Invoke(results);
         }
+        #endregion
 
-        // Timer logic
+        #region Timer Logic
+        /// <summary>
+        /// Starts a timer for the current question if a time limit is provided.
+        /// </summary>
         private void StartTimer(float timeLimit)
         {
             if (timeLimit > 0)
@@ -270,13 +330,16 @@ namespace QuizGraphEditor
             }
         }
 
+        /// <summary>
+        /// Stops the current timer.
+        /// </summary>
         private void StopTimer()
         {
             timerRunning = false;
         }
 
         /// <summary>
-        /// Call this every frame from a MonoBehaviour (e.g., in QuizRunner's Update).
+        /// Updates the timer each frame and handles time expiration scenarios.
         /// </summary>
         public void Update(float deltaTime)
         {
@@ -290,10 +353,9 @@ namespace QuizGraphEditor
                 OnTimerUpdated?.Invoke(currentTimeRemaining);
                 OnTimeExpired?.Invoke();
 
-                // Handle time expiry scenario
                 var lastResult = results[results.Count - 1];
                 lastResult.IsCorrect = false;
-                lastResult.ChosenAnswerIndex = -1; // No choice
+                lastResult.ChosenAnswerIndex = -1;
                 results[results.Count - 1] = lastResult;
 
                 MoveToNextNode(0);
@@ -303,6 +365,7 @@ namespace QuizGraphEditor
                 OnTimerUpdated?.Invoke(currentTimeRemaining);
             }
         }
+        #endregion
     }
 
     [Serializable]
@@ -315,8 +378,15 @@ namespace QuizGraphEditor
         public int ChosenAnswerIndex;
         public bool IsCorrect;
 
+        /// <summary>
+        /// Gets the correct answer text.
+        /// </summary>
         public string CorrectAnswerText =>
             (CorrectAnswerIndex >= 0 && CorrectAnswerIndex < Answers.Length) ? Answers[CorrectAnswerIndex] : "";
+
+        /// <summary>
+        /// Gets the chosen answer text.
+        /// </summary>
         public string ChosenAnswerText =>
             (ChosenAnswerIndex >= 0 && ChosenAnswerIndex < Answers.Length) ? Answers[ChosenAnswerIndex] : "No Answer";
     }

@@ -1,3 +1,15 @@
+/*
+Made by Samuel Murrandah
+Student Number: 1031741
+Student Email: 1031741@student.sae.edu.au
+Class Code: GPG315
+Assignment: 2 
+
+AI Declaration:
+Generative AI was used for editing and organisation such as reordering functions as well as some comments.
+All code and logic was created and written by me
+*/
+
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -19,12 +31,18 @@ namespace QuizGraphEditor
         private QuizGraphView _graphView;
         private EditorWindow _editorWindow;
 
+        /// <summary>
+        /// Initializes the NodeSearchWindow with the associated graph view and editor window.
+        /// </summary>
         public void Initialize(QuizGraphView graphView, EditorWindow editorWindow)
         {
             _graphView = graphView;
             _editorWindow = editorWindow;
         }
 
+        /// <summary>
+        /// Creates the search tree for the node creation menu.
+        /// </summary>
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
             var tree = new List<SearchTreeEntry>
@@ -55,6 +73,9 @@ namespace QuizGraphEditor
             return tree;
         }
 
+        /// <summary>
+        /// Handles the selection of a node creation entry from the search window.
+        /// </summary>
         public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
         {
             Vector2 mousePosition = _editorWindow.rootVisualElement.ChangeCoordinatesTo(

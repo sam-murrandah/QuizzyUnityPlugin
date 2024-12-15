@@ -1,3 +1,15 @@
+/*
+Made by Samuel Murrandah
+Student Number: 1031741
+Student Email: 1031741@student.sae.edu.au
+Class Code: GPG315
+Assignment: 2 
+
+AI Declaration:
+Generative AI was used for editing and organisation such as reordering functions as well as some comments.
+All code and logic was created and written by me
+*/
+
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -12,31 +24,28 @@ namespace QuizGraphEditor
         private NodeSearchWindow _searchWindow;
 
         #region Constructor
+        /// <summary>
+        /// Initializes the QuizGraphView, setting up zoom levels, manipulators, nodes, and UI elements.
+        /// </summary>
         public QuizGraphView(EditorWindow editorWindow)
         {
             styleSheets.Add(Resources.Load<StyleSheet>("QuizGraphStyles"));
 
-            // Setup zoom levels
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
 
-            // Add grid background
             AddGridBackground();
-
-            // Add manipulators
             AddManipulators();
-
-            // Add the start node
             AddElement(CreateStartNode());
-
-            // Add search window
             AddSearchWindow(editorWindow);
-
-            // Set up the minimap
             AddMinimap();
         }
         #endregion
 
         #region Setup Methods
+
+        /// <summary>
+        /// Adds standard manipulators to the GraphView.
+        /// </summary>
         private void AddManipulators()
         {
             this.AddManipulator(new ContentDragger());
@@ -45,6 +54,9 @@ namespace QuizGraphEditor
             this.AddManipulator(new ClickSelector());
         }
 
+        /// <summary>
+        /// Adds a grid background to the GraphView.
+        /// </summary>
         private void AddGridBackground()
         {
             var grid = new GridBackground();
@@ -52,6 +64,9 @@ namespace QuizGraphEditor
             grid.StretchToParentSize();
         }
 
+        /// <summary>
+        /// Adds the search window for creating nodes.
+        /// </summary>
         private void AddSearchWindow(EditorWindow editorWindow)
         {
             _searchWindow = ScriptableObject.CreateInstance<NodeSearchWindow>();
@@ -59,15 +74,23 @@ namespace QuizGraphEditor
             nodeCreationRequest = context => SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), _searchWindow);
         }
 
+        /// <summary>
+        /// Adds a minimap to the GraphView.
+        /// </summary>
         private void AddMinimap()
         {
             var miniMap = new MiniMap { anchored = true };
             miniMap.SetPosition(new Rect(10, 30, 200, 140));
             Add(miniMap);
         }
+
         #endregion
 
         #region Node Creation
+
+        /// <summary>
+        /// Creates a new node of the specified type at the given position.
+        /// </summary>
         public void CreateNode(Type type, Vector2 position)
         {
             Node node = null;
@@ -77,16 +100,18 @@ namespace QuizGraphEditor
             else if (type == typeof(TrueFalseNode))
                 node = new TrueFalseNode(position);
             else if (type == typeof(StartNode))
-                node = new StartNode(); // assuming StartNode is concrete
+                node = new StartNode();
 
             if (node != null)
             {
-                // If node’s position isn’t set in its constructor, you can set it here
                 node.SetPosition(new Rect(position, new Vector2(200, 150)));
                 AddElement(node);
             }
         }
 
+        /// <summary>
+        /// Creates the initial start node.
+        /// </summary>
         private Node CreateStartNode()
         {
             var startNode = new StartNode();
@@ -94,6 +119,9 @@ namespace QuizGraphEditor
             return startNode;
         }
 
+        /// <summary>
+        /// Ensures compatibility between ports for connections.
+        /// </summary>
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {
             var compatiblePorts = new List<Port>();
@@ -109,21 +137,27 @@ namespace QuizGraphEditor
             return compatiblePorts;
         }
 
+        /// <summary>
+        /// Creates a Multiple Choice node at the given position.
+        /// </summary>
         public void CreateMultipleChoiceNode(Vector2 position)
         {
             var node = new MultipleChoiceNode(position);
             AddElement(node);
         }
 
+        /// <summary>
+        /// Creates a True/False node at the given position.
+        /// </summary>
         public void CreateTrueFalseNode(Vector2 position)
         {
             var node = new TrueFalseNode(position);
             AddElement(node);
         }
 
-        #endregion
-
-
+        /// <summary>
+        /// Checks if a start node already exists in the graph.
+        /// </summary>
         public bool HasStartNode()
         {
             foreach (var element in graphElements)
@@ -134,20 +168,29 @@ namespace QuizGraphEditor
             return false;
         }
 
+        /// <summary>
+        /// Creates a start node if none exists.
+        /// </summary>
         public void CreateStartNode(Vector2 position)
         {
-            if (HasStartNode()) return; // If a start node already exists, do nothing.
+            if (HasStartNode()) return;
+
             var startNode = new StartNode();
             startNode.SetPosition(new Rect(position, new Vector2(150, 100)));
             AddElement(startNode);
         }
 
+        #endregion
+
         #region Serialization
+
+        /// <summary>
+        /// Saves the graph structure to a file.
+        /// </summary>
         public void SaveGraph(string filePath)
         {
             var quizData = new QuizData();
 
-            // Save nodes
             graphElements.ForEach(element =>
             {
                 if (element is MultipleChoiceNode mcNode)
@@ -158,7 +201,6 @@ namespace QuizGraphEditor
                     quizData.startNodeData = startNode.GetData();
             });
 
-            // Save edges
             foreach (var edge in edges)
             {
                 var outputNode = edge.output.node as Node;
@@ -169,7 +211,7 @@ namespace QuizGraphEditor
                 if (string.IsNullOrEmpty(outputGUID) || string.IsNullOrEmpty(inputGUID))
                 {
                     Debug.LogError("Skipping edge due to null or empty GUID. Check your graph for invalid connections.");
-                    continue; // Skip adding this edge
+                    continue;
                 }
 
                 quizData.edges.Add(new EdgeData
@@ -181,13 +223,13 @@ namespace QuizGraphEditor
                 });
             }
 
-
-            // Serialize to JSON
             var jsonData = JsonUtility.ToJson(quizData, true);
             System.IO.File.WriteAllText(filePath, jsonData);
         }
 
-        // Helper function to extract GUID from node
+        /// <summary>
+        /// Helper function to extract the GUID from a node.
+        /// </summary>
         private string GetGUIDFromNode(Node node)
         {
             if (node is BaseNode baseNode) return baseNode.GUID;
@@ -196,6 +238,9 @@ namespace QuizGraphEditor
             return string.Empty;
         }
 
+        /// <summary>
+        /// Loads a graph structure from a file.
+        /// </summary>
         public void LoadGraph(string filePath)
         {
             ClearGraph();
@@ -205,45 +250,35 @@ namespace QuizGraphEditor
 
             var nodesDict = new Dictionary<string, Node>();
 
-            // Recreate MultipleChoiceNodes
             foreach (var mcData in quizData.multipleChoiceNodes)
             {
                 var node = new MultipleChoiceNode();
                 node.LoadData(mcData);
                 AddElement(node);
                 nodesDict[mcData.GUID] = node;
-
-                // Debugging: Log ports right after load
-                LogNodePorts(node);
+                //LogNodePorts(node);
             }
 
-            // Recreate TrueFalseNodes
             foreach (var tfData in quizData.trueFalseNodes)
             {
                 var node = new TrueFalseNode();
                 node.LoadData(tfData);
                 AddElement(node);
                 nodesDict[tfData.GUID] = node;
-
-                // Debugging: Log ports right after load
-                LogNodePorts(node);
+                //LogNodePorts(node);
             }
 
-            // Recreate StartNode
             if (quizData.startNodeData != null)
             {
                 var startNode = new StartNode(quizData.startNodeData);
                 AddElement(startNode);
                 nodesDict[quizData.startNodeData.GUID] = startNode;
-
-                // Debugging: Log ports right after load
-                LogNodePorts(startNode);
+                //LogNodePorts(startNode);
             }
 
-            // Now attempt to reconnect edges
             foreach (var edgeData in quizData.edges)
             {
-                Debug.Log($"Attempting to create edge from {edgeData.outputNodeGUID} ({edgeData.outputPortName}) to {edgeData.inputNodeGUID} ({edgeData.inputPortName})");
+                //Debug.Log($"Attempting to create edge from {edgeData.outputNodeGUID} ({edgeData.outputPortName}) to {edgeData.inputNodeGUID} ({edgeData.inputPortName})");
 
                 if (!nodesDict.TryGetValue(edgeData.outputNodeGUID, out var outputNode))
                 {
@@ -281,6 +316,10 @@ namespace QuizGraphEditor
                 }
             }
         }
+
+        /// <summary>
+        /// Logs the ports of a node for debugging purposes.
+        /// </summary>
         private void LogNodePorts(Node node)
         {
             Debug.Log($"Logging ports for node: {node.title}, GUID: {(node is BaseNode bn ? bn.GUID : (node is StartNode sn ? sn.GUID : "No GUID"))}");
@@ -302,13 +341,14 @@ namespace QuizGraphEditor
             }
         }
 
+        /// <summary>
+        /// Clears the graph by removing all nodes and edges.
+        /// </summary>
         private void ClearGraph()
         {
-            // Remove all nodes and edges
             graphElements.ForEach(RemoveElement);
         }
+
         #endregion
     }
-
-   
 }

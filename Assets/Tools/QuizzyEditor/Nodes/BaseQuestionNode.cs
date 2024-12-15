@@ -1,3 +1,15 @@
+/*
+Made by Samuel Murrandah
+Student Number: 1031741
+Student Email: 1031741@student.sae.edu.au
+Class Code: GPG315
+Assignment: 2 
+
+AI Declaration:
+Generative AI was used for editing and organisation such as reordering functions as well as some comments.
+All code and logic was created and written by me
+*/
+
 using System;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -33,7 +45,7 @@ namespace QuizGraphEditor
         {
             title = "Question";
             GUID = Guid.NewGuid().ToString();
-            Debug.Log("Node " + this.title + " GUID: " + GUID);
+            //Debug.Log("Node " + this.title + " GUID: " + GUID);
             capabilities = Capabilities.Movable | Capabilities.Selectable | Capabilities.Deletable | Capabilities.Resizable;
 
             CreatePorts();
@@ -60,7 +72,7 @@ namespace QuizGraphEditor
         protected TextField questionField;
         protected TextField explanationField;
 
-        protected void AddFields()
+        protected virtual void AddFields()
         {
             var container = new VisualElement();
 

@@ -1,3 +1,15 @@
+/*
+Made by Samuel Murrandah
+Student Number: 1031741
+Student Email: 1031741@student.sae.edu.au
+Class Code: GPG315
+Assignment: 2 
+
+AI Declaration:
+Generative AI was used for editing and organisation such as reordering functions as well as some comments.
+All code and logic was created and written by me
+*/
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +20,7 @@ namespace QuizGraphEditor
 {
     public class QuizUIManager : MonoBehaviour
     {
+        #region Serialized Fields
         [Header("Main Quiz UI")]
         [SerializeField] private TMP_Text questionText;
         [SerializeField] private RectTransform answersContainer;
@@ -18,11 +31,17 @@ namespace QuizGraphEditor
         [SerializeField] private GameObject resultsPanel;
         [SerializeField] private RectTransform resultsContainer;
         [SerializeField] private GameObject resultEntryPrefab;
+        #endregion
 
+        #region Events
         public event Action<int> OnAnswerSelected;
+        #endregion
 
+        #region Private Fields
         private readonly List<GameObject> currentAnswerButtons = new List<GameObject>();
+        #endregion
 
+        #region Unity Lifecycle
         private void Awake()
         {
             // Validate references
@@ -34,7 +53,9 @@ namespace QuizGraphEditor
             if (resultsContainer == null) Debug.LogWarning("QuizUIManager: resultsContainer is not assigned.");
             if (resultEntryPrefab == null) Debug.LogWarning("QuizUIManager: resultEntryPrefab is not assigned.");
         }
+        #endregion
 
+        #region Public Methods
         /// <summary>
         /// Displays a question and its possible answers.
         /// </summary>
@@ -67,26 +88,6 @@ namespace QuizGraphEditor
 
             if (timerText != null)
                 timerText.gameObject.SetActive(true); // Show timer if available
-        }
-
-        /// <summary>
-        /// Called when an answer button is clicked.
-        /// </summary>
-        private void OnAnswerClicked(int index)
-        {
-            OnAnswerSelected?.Invoke(index);
-        }
-
-        /// <summary>
-        /// Clears existing answer buttons from the UI.
-        /// </summary>
-        private void ClearAnswers()
-        {
-            foreach (var btn in currentAnswerButtons)
-            {
-                if (btn != null) Destroy(btn);
-            }
-            currentAnswerButtons.Clear();
         }
 
         /// <summary>
@@ -149,5 +150,28 @@ namespace QuizGraphEditor
 
             // Optional: You can add a "Play Again" or "Close" button on the resultsPanel 
         }
+        #endregion
+
+        #region Private Methods
+        /// <summary>
+        /// Called when an answer button is clicked.
+        /// </summary>
+        private void OnAnswerClicked(int index)
+        {
+            OnAnswerSelected?.Invoke(index);
+        }
+
+        /// <summary>
+        /// Clears existing answer buttons from the UI.
+        /// </summary>
+        private void ClearAnswers()
+        {
+            foreach (var btn in currentAnswerButtons)
+            {
+                if (btn != null) Destroy(btn);
+            }
+            currentAnswerButtons.Clear();
+        }
+        #endregion
     }
 }

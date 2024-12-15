@@ -1,3 +1,15 @@
+/*
+Made by Samuel Murrandah
+Student Number: 1031741
+Student Email: 1031741@student.sae.edu.au
+Class Code: GPG315
+Assignment: 2 
+
+AI Declaration:
+Generative AI was used for editing and organisation such as reordering functions as well as some comments.
+All code and logic was created and written by me
+*/
+
 using System;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -8,10 +20,13 @@ namespace QuizGraphEditor
 {
     public class QuizzyGraphEditor : EditorWindow
     {
+        #region Fields
         private QuizGraphView _graphView;
         private VisualElement _settingsView;
         private ToolbarMenu _toolbarMenu;
+        #endregion
 
+        #region Editor Window Setup
         [MenuItem("Tools/Quizzy Graph Editor")]
         public static void OpenGraphEditor()
         {
@@ -21,6 +36,10 @@ namespace QuizGraphEditor
 
         private void OnEnable()
         {
+            var styleSheet = Resources.Load<StyleSheet>("QuizGraphStyles");
+            if (styleSheet != null)
+                rootVisualElement.styleSheets.Add(styleSheet);
+
             // Load stored preferences before building UI
             UserPreferences.LoadPreferences();
 
@@ -38,28 +57,67 @@ namespace QuizGraphEditor
             if (_graphView != null) rootVisualElement.Remove(_graphView);
             if (_settingsView != null) rootVisualElement.Remove(_settingsView);
         }
+        #endregion
 
+        #region Toolbar Construction
         /// <summary>
         /// Constructs the top toolbar with view switching and save/load actions.
         /// </summary>
         private void ConstructToolbar()
         {
             var toolbar = new Toolbar();
+            toolbar.AddToClassList("quizzy-toolbar");
 
-            _toolbarMenu = new ToolbarMenu { text = "Graph View" };
+            // Title label
+            var titleLabel = new Label("Quizzy Graph Editor")
+            {
+                style =
+                {
+                    unityFontStyleAndWeight = FontStyle.Bold,
+                    fontSize = 14,
+                    marginLeft = 8,
+                    marginRight = 8
+                }
+            };
+            toolbar.Add(titleLabel);
+
+            // Spacer to push menu/actions to the right
+            toolbar.Add(new ToolbarSpacer { style = { flexGrow = 1 } });
+
+            _toolbarMenu = new ToolbarMenu { text = "View" };
             _toolbarMenu.menu.AppendAction("Graph View", _ => ShowGraphView(), DropdownMenuAction.Status.Normal);
             _toolbarMenu.menu.AppendAction("Settings", _ => ShowSettingsView(), DropdownMenuAction.Status.Normal);
             toolbar.Add(_toolbarMenu);
 
+            // Custom separator
+            var separator = new VisualElement
+            {
+                style =
+        {
+            backgroundColor = new Color(0.4f, 0.4f, 0.4f, 1f), // A grey line
+            width = 2,
+            height = 24, // Match toolbar height
+            marginLeft = 8,
+            marginRight = 8
+        }
+            };
+            toolbar.Add(separator);
+
+            // Save button
             var saveButton = new Button(SaveData) { text = "Save" };
             toolbar.Add(saveButton);
 
+            // Load button
             var loadButton = new Button(LoadData) { text = "Load" };
             toolbar.Add(loadButton);
 
             rootVisualElement.Add(toolbar);
         }
 
+
+        #endregion
+
+        #region View Construction
         /// <summary>
         /// Creates and configures the main graph view element.
         /// </summary>
@@ -189,7 +247,9 @@ namespace QuizGraphEditor
             };
             container.Add(spacer);
         }
+        #endregion
 
+        #region View Switching
         /// <summary>
         /// Switches to the Graph View.
         /// </summary>
@@ -209,7 +269,9 @@ namespace QuizGraphEditor
             _graphView.style.display = DisplayStyle.None;
             _settingsView.style.display = DisplayStyle.Flex;
         }
+        #endregion
 
+        #region Save and Load
         /// <summary>
         /// Saves the current graph data to a JSON file.
         /// </summary>
@@ -233,7 +295,9 @@ namespace QuizGraphEditor
                 _graphView.LoadGraph(path);
             }
         }
+        #endregion
 
+        #region Styling
         /// <summary>
         /// Applies updated color preferences to all nodes in the graph view.
         /// </summary>
@@ -254,5 +318,6 @@ namespace QuizGraphEditor
                 }
             }
         }
+        #endregion
     }
 }
