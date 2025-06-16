@@ -1,2 +1,3 @@
-# GPG315_2_1031741
+# Quizzy Unity Plugin
+Read the wiki for further information!
  
